@@ -143,15 +143,18 @@ const menu = $('.header__burger');
 const nav = $('.navigation');
 const closeBtn = $('.navigation__close');
 menu.on('click', function() {
-    nav.css({
-      display: 'flex',
-      alignItems: 'center',
-    });
-    closeBtn.css('display', 'flex');
+  nav.css('display', 'flex');
+  closeBtn.css('display', 'flex');
 });
 
 closeBtn.on('click', function() {
-    nav.hide(500);
+    nav.hide();
+});
+
+$('body').on('click', function(event) {
+    if (!(event.target.closest('.navigation')) && !(event.target.closest('.header__burger'))) {
+      nav.hide(500);
+    };
 });
 
 

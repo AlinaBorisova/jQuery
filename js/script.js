@@ -104,29 +104,29 @@ $('.what-building__text').on('click', foo);
 
 
 //Отправка формы
-$('.modal-order__form').submit(function(event) {
-    event.preventDefault();
-    // $.post('https://jsonplaceholder.typicode.com/todos', $(this).serialize())
-    //   .then(function(data) {
-    //     console.log(data);
-    //     return data;
-    //   })
-    //   .catch(function(err) {
-    //     console.log(err);
-    //   });
-    $.ajax({
-        url: 'https://jsonplaceholder.typicode.com/todos',
-        type: 'POST',
-        data: $(this).serialize(),
-        success(data) {
-            modalOrderTitle.text('Ваша заявка принята, номер заявки' + data.id)
-            $('.modal-order__form').slideUp(300);
-        },
-        error() {
-          modalOrderTitle.text('Что-то пошло не так')
-        },
-    });
-});
+// $('.modal-order__form').submit(function(event) {
+//     event.preventDefault();
+//     // $.post('https://jsonplaceholder.typicode.com/todos', $(this).serialize())
+//     //   .then(function(data) {
+//     //     console.log(data);
+//     //     return data;
+//     //   })
+//     //   .catch(function(err) {
+//     //     console.log(err);
+//     //   });
+//     $.ajax({
+//         url: 'https://jsonplaceholder.typicode.com/todos',
+//         type: 'POST',
+//         data: $(this).serialize(),
+//         success(data) {
+//             modalOrderTitle.text('Ваша заявка принята, номер заявки' + data.id)
+//             $('.modal-order__form').slideUp(300);
+//         },
+//         error() {
+//           modalOrderTitle.text('Что-то пошло не так')
+//         },
+//     });
+// });
 
 // Burger-menu, домашнее задание
 
@@ -157,6 +157,111 @@ $('body').on('click', function(event) {
     };
 });
 
+
+//Cookies
+const cookieAlert = document.querySelector('.alert-cookie');
+const cookieButton = document.querySelector('.alert-cookie__button');
+
+cookieButton.addEventListener('click', () => {
+  cookieAlert.classList.remove('alert-cookie_no-ready');
+  Cookies.set('dom-ready-cookie', 'true', {
+    expires: 10, // Сколько дней хранятся cookies
+  });
+});
+if (!Cookies.get('dom-ready-cookie')) {
+  cookieAlert.classList.add('alert-cookie_no-ready');
+};
+
+// Inputmask
+const modalOrderFieldset = document.querySelector('.modal-order__fieldset');
+const inputTel = document.querySelector('.modal-order__input_tel');
+const telMask = new Inputmask('+7(999)-999-99-99');
+telMask.mask(inputTel);
+
+
+//JustValidate
+const justValidate = new JustValidate('.modal-order__form');
+justValidate
+  .addField('.modal-order__input', [
+    {
+      rule: 'required',
+      errorMessage: 'Укажите Ваше имя',
+    },
+    {
+      rule: 'minLength',
+      value: 3,
+      errorMessage: 'Не короче 3-х символов',
+    },
+    {
+      rule: 'maxLength',
+      value: 30,
+      errorMessage: 'Слишком длинное имя',
+    },
+  ])
+  .addField('.modal-order__input_email', [
+    {
+      rule: 'required',
+      errorMessage: 'Укажите Ваш email',
+    },
+    {
+      rule: 'email',
+      errorMessage: 'Некорректный email',
+    },
+  ])
+  .addField('.modal-order__input_tel', [
+    {
+      rule: 'required',
+      errorMessage: 'Укажите Ваш телефон',
+    },
+    {
+      validator(value) {
+        const phone = inputTel.inputmask.unmaskedvalue();
+        console.log(phone);
+        return !!(Number(phone) && phone.length === 10);
+      },
+      errorMessage: 'Некорректный телефон',
+    }  
+  ])
+  .onSuccess(event => {
+    const target = event.target;
+    axios.post('https://jsonplaceholder.typicode.com/posts', {
+      name: target.name.value,
+      tel: inputTel.inputmask.unmaskedvalue(),
+      email: target.email.value,
+    })
+    .then(response => {
+      target.reset();
+      modalOrderFieldset.disabled = true;
+      modalOrderTitle.textContent = `Ваша заявка принята, номер заявки ${response.data.id}`;
+    })
+    .catch(err => {
+      modalOrderFieldset.disabled = false;
+      target.reset();
+      modalOrderTitle.textContent = 'Что-то пошло не так';
+      console.error(err);
+    })
+  })
+
+// Слайдер
+
+new Swiper('.swiper', {
+  slidesPreView: 4, 
+  loop: true,
+  autoplay: {
+    delay: 3000,
+  },
+
+  pagination: {
+    el: 'swiper-panigation',
+  },
+
+  navigation: {
+    nextEl: '.swiper-button-next',
+    prevEl: '.swiper-button-prev',
+  },
+
+  Keyboard: true,
+});
 
 
 
